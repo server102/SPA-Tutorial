@@ -1,7 +1,7 @@
 module.exports = (app) => {
-  return app.get('/login', (req, res) => {
+  return app.post('/register', (req, res) => {
     res.send({
-      message: 'Refactoring login routes'
+      message: `${req.body.email} is registered.`
     })
   })
 }
