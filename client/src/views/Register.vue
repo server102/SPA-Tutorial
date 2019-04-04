@@ -1,6 +1,7 @@
 <template>
   <div class="register">
     <h1>This is the register page </h1>
+    <div v-html="error" />
     <input v-model="email" type="email" name="email" placeholder="Email">
     <input v-model="password" type="password" name="password" placeholder="password">
     <button @click="register">Register</button>
@@ -13,15 +14,19 @@ export default {
     return {
       email: '',
       password: '',
-      result: ''
+      error: null
     }
   },
   methods: {
     async register () {
-      const response = await AuthService.register({
-        email: this.email
-      })
-      console.log(response.data)
+      try {
+        await AuthService.register({
+          email: this.email,
+          password: this.password
+        })
+      } catch (err) {
+        this.error = err.response.data.error
+      }
     }
   }
 }
