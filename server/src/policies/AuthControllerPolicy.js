@@ -3,24 +3,30 @@ const Joi = require('joi')
 module.exports = {
   register (req, res, next) {
     const schema = {
-      email: Joi.string().email(),
-      password: Joi.string().regex(
-        new RegExp('^[a-zA-Z0-9]{8,32}$')
-      )
+      name: Joi.string().min(2).required(),
+      email: Joi.string().email({ minDomainAtoms: 2 }).required(),
+      password: Joi.string().min(8).required()
     }
 
     const { error, value } = Joi.validate(req.body, schema)
-    // console.log(value)
     if (error) {
       switch (error.details[0].context.key) {
+        case 'name':
+          res.status(400).send({
+            error: 'Your full name is required',
+            inputType: 'name'
+          })
+          break
         case 'email':
           res.status(400).send({
-            error: 'Must be a valid email address'
+            error: 'Your email address is not valid',
+            inputType: 'email'
           })
           break
         case 'password':
           res.status(400).send({
-            error: 'Your password isn\'t strong enough, try making it longer'
+            error: 'Your password isn\'t strong enough, try making it longer',
+            inputType: 'password'
           })
           break
         default:
