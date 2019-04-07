@@ -3,7 +3,7 @@
     <div class="column is-one-third is-offset-one-third register">
       <section>
         <h1>Let's create your account</h1>
-        <p>Already have an eTrade account? Sign in</p>
+        <p>Already have an eTrade account? <router-link to="/login">Sign in</router-link></p>
         <b-field label="Name *" v-bind:type="isNameValid" v-bind:message="nameError">
           <b-input v-model="name" type="text"></b-input>
         </b-field>
@@ -32,17 +32,17 @@ export default {
       toggle_state: false,
       is_register_btn_disabled: true,
 
-      emailError: null,
-      passwordError: null,
-      isEmailValid: null,
-      isPasswordValid: null,
       nameError: null,
-      isNameValid: null
+      isNameValid: null,
+      emailError: null,
+      isEmailValid: null,
+      passwordError: null,
+      isPasswordValid: null
     }
   },
   methods: {
     async register () {
-      if (!this.toggle_state) return // prevent form submission if privacy checkbox is not clicked
+      if (!this.toggle_state) return // prevent form submission if privacy checkbox is unchecked
 
       this.clearFormErrorView()
       try {
@@ -53,27 +53,29 @@ export default {
         })
         if (result.status === 200) {
           console.log('welcome to the dashboard')
+          this.$store.dispatch('setToken', result.data.token)
+          this.$store.dispatch('setUser', result.data.user)
           this.clearFormInput()
         }
       } catch (err) {
-        switch (err.response.data.inputType) {
-          case 'name':
-            this.nameError = err.response.data.error
-            this.isNameValid = 'is-danger'
-            break
-
-          case 'email':
-            this.emailError = err.response.data.error
-            this.isEmailValid = 'is-danger'
-            break
-
-          case 'password':
-            this.passwordError = err.response.data.error
-            this.isPasswordValid = 'is-danger'
-            break
-
-          default:
-        }
+        this.handleFormError(err)
+      }
+    },
+    handleFormError: function (err) {
+      switch (err.response.data.inputType) {
+        case 'name':
+          this.nameError = err.response.data.error
+          this.isNameValid = 'is-danger'
+          break
+        case 'email':
+          this.emailError = err.response.data.error
+          this.isEmailValid = 'is-danger'
+          break
+        case 'password':
+          this.passwordError = err.response.data.error
+          this.isPasswordValid = 'is-danger'
+          break
+        default:
       }
     },
     clearFormErrorView () {

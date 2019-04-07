@@ -4,6 +4,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const { sequelize } = require('./models')
 const app = express()
+const config = require('./config/config')
 
 // express middleware
 app.use(morgan('combined'))
@@ -17,6 +18,6 @@ app.use('/api', require('./routes')(router))
 
 sequelize.sync()
   .then(() => {
-    app.listen(9000)
-    console.log('Server running on port: ' + 9000)
+    app.listen(config.port)
+    console.log('Server running on port: ' + config.port)
   })
