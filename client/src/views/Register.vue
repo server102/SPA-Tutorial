@@ -2,21 +2,26 @@
   <div class="columns">
     <div class="column is-one-third is-offset-one-third register">
       <section>
-        <h1>Let's create your account</h1>
-        <p>Already have an eTrade account? <router-link to="/login">Sign in</router-link></p>
-        <b-field label="Name *" v-bind:type="isNameValid" v-bind:message="nameError">
-          <b-input v-model="name" type="text"></b-input>
-        </b-field>
-        <b-field label="Email *" v-bind:type="isEmailValid" v-bind:message="emailError">
-          <b-input v-model="email"  type="email" placeholder="example@example.com"></b-input>
-        </b-field>
-        <b-field label="Password *" v-bind:type="isPasswordValid" v-bind:message="passwordError">
-          <b-input v-model="password" type="password" password-reveal></b-input>
-        </b-field>
-        <b-field>
-            <b-checkbox v-model="toggle_state" type="is-info"><span class="register_terms">I agree to eTrade's <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span></b-checkbox>
-        </b-field>
-        <a :disabled="toggle_state === false" class="button is-success is-hovered is-active is-fullwidth form-button" @click="register">Register</a>
+        <form @submit.prevent="register">
+          <h1>Let's create your account</h1>
+          <p>Already have an eTrade account? <router-link to="/login">Sign in</router-link></p>
+          <b-notification v-if="error" type="is-danger" v-bind:closable="false">
+            {{ error }}
+        </b-notification>
+          <b-field label="Name *">
+            <b-input v-model="name" type="name"></b-input>
+          </b-field>
+          <b-field label="Email *">
+            <b-input v-model="email"  type="email" placeholder="example@example.com"></b-input>
+          </b-field>
+          <b-field label="Password *">
+            <b-input v-model="password" type="password" password-reveal></b-input>
+          </b-field>
+          <b-field>
+              <b-checkbox v-model="toggle_state" type="is-info"><span class="register_terms">I agree to eTrade's <a href="#">Terms</a> and <a href="#">Privacy Policy</a></span></b-checkbox>
+          </b-field>
+          <button type="submit" :class="isBtnLoading" :disabled="toggle_state === false" class="button is-success is-hovered is-active is-fullwidth form-button">Register</button>
+        </form>
       </section>
     </div>
   </div>
@@ -31,58 +36,50 @@ export default {
       password: '',
       toggle_state: false,
       is_register_btn_disabled: true,
-
-      nameError: null,
-      isNameValid: null,
-      emailError: null,
-      isEmailValid: null,
-      passwordError: null,
-      isPasswordValid: null
+      isBtnLoading: '',
+      error: null
     }
   },
   methods: {
     async register () {
-      if (!this.toggle_state) return // prevent form submission if privacy checkbox is unchecked
-
-      this.clearFormErrorView()
+      if (!this.toggle_state) return
       try {
+        this.clearErrorMsg()
+        this.showLoadingState()
         const result = await AuthService.register({
           name: this.name,
           email: this.email,
           password: this.password
         })
-        if (result.status === 200) {
-          console.log('welcome to the dashboard')
-          this.$store.dispatch('setToken', result.data.token)
-          this.$store.dispatch('setUser', result.data.user)
-          this.clearFormInput()
-        }
+        this.redirectToDashboard(result.data.token, result.data.user)
       } catch (err) {
-        this.handleFormError(err)
+        this.handleFormError(err.response.data.error)
       }
+      this.hideLoadingState()
     },
-    handleFormError: function (err) {
-      switch (err.response.data.inputType) {
-        case 'name':
-          this.nameError = err.response.data.error
-          this.isNameValid = 'is-danger'
-          break
-        case 'email':
-          this.emailError = err.response.data.error
-          this.isEmailValid = 'is-danger'
-          break
-        case 'password':
-          this.passwordError = err.response.data.error
-          this.isPasswordValid = 'is-danger'
-          break
-        default:
-      }
+    redirectToDashboard (token, user) {
+      this.$store.dispatch('setToken', token)
+      this.$store.dispatch('setUser', user)
+      this.clearFormInput()
+      this.$router.push({
+        name: 'dashboard'
+      })
     },
-    clearFormErrorView () {
-      this.nameError = this.isNameValid = this.emailError = this.isEmailValid = this.passwordError = this.isPasswordValid = null
+    handleFormError (err) {
+      // const msg = 'Error connecting to server, please try again'
+      this.error = err
     },
     clearFormInput () {
       this.name = this.email = this.password = ''
+    },
+    showLoadingState () {
+      this.isBtnLoading = 'is-loading'
+    },
+    hideLoadingState () {
+      this.isBtnLoading = ''
+    },
+    clearErrorMsg () {
+      this.error = null
     }
   }
 }

@@ -4,17 +4,18 @@
       <section>
         <h1>Log in to eTrade</h1>
 
-        <b-notification v-if="error" type="is-danger" v-on:close="reset_error_alert">
+        <b-notification v-if="error" type="is-danger"  v-bind:closable="false">
             {{ error }}
         </b-notification>
-
+        <form @submit.prevent="login">
         <b-field label="Email *">
           <b-input v-model="email"  type="email" placeholder="example@example.com"></b-input>
         </b-field>
         <b-field label="Password *">
           <b-input v-model="password" type="password" password-reveal></b-input>
         </b-field>
-        <a class="button is-success is-hovered is-active is-fullwidth form-button" @click="login">Log in</a>
+        <button :class="isBtnLoading" class="button is-success is-hovered is-active is-fullwidth form-button" type="submit">Log in</button>
+        </form>
         <p>Forgot your password? <a href="#">Reset</a></p>
         <p>Don't have an account? <router-link to="/register">Register</router-link></p>
       </section>
@@ -28,12 +29,18 @@ export default {
     return {
       email: '',
       password: '',
+      isBtnLoading: '',
       error: null
     }
   },
   methods: {
+    getUserName () {
+      return this.email.substring(0, this.email.lastIndexOf('@'))
+    },
     async login () {
       try {
+        this.clearErrorMsg()
+        this.showLoadingState()
         const result = await AuthService.login({
           email: this.email,
           password: this.password
@@ -42,12 +49,22 @@ export default {
           console.log('welcome to the dashboard')
           this.$store.dispatch('setToken', result.data.token)
           this.$store.dispatch('setUser', result.data.user)
+          this.$router.push({
+            name: 'dashboard'
+          })
         }
       } catch (err) {
         this.error = err.response.data.error
       }
+      this.hideLoadingState()
     },
-    reset_error_alert () {
+    showLoadingState () {
+      this.isBtnLoading = 'is-loading'
+    },
+    hideLoadingState () {
+      this.isBtnLoading = ''
+    },
+    clearErrorMsg () {
       this.error = null
     }
   }

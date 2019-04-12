@@ -8,31 +8,28 @@ module.exports = {
       password: Joi.string().min(8).required()
     }
 
-    const { error, value } = Joi.validate(req.body, schema)
+    // const { error, value } = Joi.validate(req.body, schema)
+    const { error } = Joi.validate(req.body, schema)
     if (error) {
       switch (error.details[0].context.key) {
         case 'name':
           res.status(400).send({
-            error: 'Your full name is required',
-            inputType: 'name'
+            error: 'Your full name is required'
           })
           break
         case 'email':
           res.status(400).send({
-            error: 'Your email address is not valid',
-            inputType: 'email'
+            error: 'Your email address is not valid'
           })
           break
         case 'password':
           res.status(400).send({
-            error: 'Your password isn\'t strong enough, try making it longer',
-            inputType: 'password'
+            error: 'Your password isn\'t strong enough, try making it longer'
           })
           break
         default:
           res.status(400).send({
-            error: 'Invalid registration information',
-            formValue: value // this line does nothing. Added it to bypass eslint (assigned a value but never used error)
+            error: 'Error validating input fields, please try again'
           })
       }
     } else {

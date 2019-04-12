@@ -13,15 +13,19 @@ module.exports = {
     try {
       const user = await User.create(req.body)
       const userJson = user.toJSON()
-      res.send({
+      return res.send({
         user: userJson,
         token: jwtSignUser(userJson)
       })
-    } catch (err) {
-      console.log(err)
-      res.status(400).send({
-        error: 'This email account is already in use',
-        inputType: 'email'
+    } catch (error) {
+      if (error.parent.fatal) {
+        return res.status(500).send({
+          error: 'An error occurred creating your new account'
+        })
+      }
+
+      return res.status(403).send({
+        error: 'Email already exists'
       })
     }
   },
@@ -44,7 +48,7 @@ module.exports = {
       const isPasswordValid = await user.comparePassword(password)
       if (!isPasswordValid) {
         return res.status(403).send({
-          error: 'The login information was incorrect password'
+          error: 'The login information was incorrect'
         })
       }
 
@@ -55,7 +59,7 @@ module.exports = {
       })
     } catch (err) {
       res.status(500).send({
-        error: 'An error has occurred trying to log in'
+        error: 'An error occurred trying to log in'
       })
     }
   }

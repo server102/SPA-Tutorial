@@ -1,0 +1,57 @@
+@import "main.scss";
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+#app, .columns, .column, .vertical-nav {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  font-family: 'Nunito', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+}
+
+.vertical-nav a {
+  color: $info-invert;
+  padding: 15px 8px;
+  display: block;
+  text-align: center;
+}
+
+.vertical-nav a:hover {
+  color: $white;
+}
+
+.vertical-nav a .icon {
+  width: 100%;
+}
+
+
+.vertical-nav .router-link-active {
+  background: $primary;
+  color: $white;
+}
+
+.backend-user {
+  margin-left: 12px;
+}
+
+.page-title {
+  padding-top:12px;
+  padding-left: 12px;
+  text-transform: capitalize;
+}
+
+.navbar-item.icon-nav:hover {
+  background: none;
+}
+
+.navbar-item.icon-nav i.mdi::before {
+  font-size: 30px;
+}

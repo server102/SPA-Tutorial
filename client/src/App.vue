@@ -1,47 +1,33 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> &nbsp;
-      <router-link to="/about">About</router-link> &nbsp;
-      <router-link v-if="!isUserLoggedIn" to="/register">Register</router-link>
+    <div class="columns">
+    <div class="column is-narrow">
+      <VerticalNav v-if="isUserLoggedIn" />
     </div>
-    <router-view/>
+    <div class="column">
+    <AdminHeader v-if="isUserLoggedIn">
+    </AdminHeader>
+    <div class="content">
+      <router-view/>
+    </div>
+    </div>
+  </div>
   </div>
 </template>
 
 <script>
+import AdminHeader from '@/components/dashboard/AdminHeader.vue'
+import VerticalNav from '@/components/dashboard/VerticalNav.vue'
+
 export default {
-  data () {
-    return {
-    }
-  },
   computed: {
     isUserLoggedIn () {
       return this.$store.state.isUserLoggedIn
     }
+  },
+  components: {
+    AdminHeader,
+    VerticalNav
   }
 }
-
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
-#nav {
-  padding: 30px;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
